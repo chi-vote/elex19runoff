@@ -1,7 +1,7 @@
 import csv, json
 
 ### START CONFIG ###
-data_dir = '/home/matt/chicago-reporter/elex19runoff/data/'
+data_dir = 'data/'
 # infile stuff
 precincts_mayoral = 'precinct_canvass_2325.csv'
 precincts_mayoral_fieldnames =['ward_precinct',
@@ -18,6 +18,9 @@ precincts_mayoral_fieldnames =['ward_precinct',
  'MELISSA CONYEARS-ERVIN',
  'AMEYA PAWAR'] 
 precincts_shape_infile = data_dir + 'precincts.json'
+outfiles_fieldnames = {'turnout':['Turnout (%)'],
+        'lori_toni':['LORI LIGHTFOOT','TONI PRECKWINKLE']
+        }
 # outfiles 
 formatted_precincts_outfile_path = data_dir + 'formatted_precincts.json'
 precincts_mayoral_outfile_path = data_dir + 'formatted_precinct_canvass.csv'
@@ -42,15 +45,16 @@ def format_precincts_mayoral(infile=open(data_dir+precincts_mayoral)):
     return wp_data
 
 
-def write_data(data=format_precincts_mayoral(),outfile=open(precincts_mayoral_outfile_path,'w')):
+def write_data(data=format_precincts_mayoral()):
     complete_fieldnames = [x for x in precincts_mayoral_fieldnames if x]
-    fieldnames_w_code = complete_fieldnames + ['wp_code']
-    fieldnames_w_code = ['wp_code','Turnout (%)']
-    outcsv = csv.DictWriter(outfile,fieldnames=fieldnames_w_code)
-    outcsv.writeheader()
-    for row in data:
-        outcsv.writerow(dict((x,row[x]) for x in row if x in fieldnames_w_code))
-    outfile.close()
+    for outfile in outfiles_fieldnames:
+        fieldnames = ['wp_code'] + outfiles_fieldnames[outfile]
+        outfile = open(data_dir + outfile + '.csv','w')
+        outcsv = csv.DictWriter(outfile,fieldnames)
+        outcsv.writeheader()
+        for row in data:
+            outcsv.writerow(dict((x,row[x]) for x in row if x in fieldnames))
+        outfile.close()
 
 
 
